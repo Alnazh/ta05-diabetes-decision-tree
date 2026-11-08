@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "macros.html" import figure, page_head %}
+{% set d = m.dataset %}
+{% block title %}Dataset{% endblock %}
+
+{% block content %}
+{{ page_head("Dataset", "sky", "Data yang dipakai",
+             "Pima Indians Diabetes: " ~ d.rows ~ " pasien wanita dengan 8 fitur dan 1 target, " ~ d.class_counts['1'] ~ " di antaranya diabetes dan " ~ d.class_counts['0'] ~ " tidak. Data dibagi " ~ d.train_size ~ " untuk latih dan " ~ d.test_size ~ " untuk uji, dengan proporsi kelas yang dijaga sama.") }}
+
+<section class="section section-flush">
+  <div class="wrap">
+    <p class="body-text">Sumber data: <a href="https://www.kaggle.com/datasets/kumargh/pimaindiansdiabetescsv" rel="noopener">Kaggle, pima-indians-diabetes.csv</a>.</p>
+
+    <div class="table-scroll">
+      <table class="metrics">
+        <thead><tr><th scope="col">Fitur</th><th scope="col">Jenis</th><th scope="col">Keterangan</th></tr></thead>
+        <tbody>
+          {% for f in fields %}
+          <tr><th scope="row">{{ f.name }}</th><td><span class="badge badge-indigo">Numerik</span></td><td>{{ f.label }}{% if f.unit %} ({{ f.unit }}){% endif %}</td></tr>
+          {% endfor %}
+          <tr><th scope="row">Outcome</th><td><span class="badge badge-pink">Target</span></td><td>1 = diabetes, 0 = tidak diabetes</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="block-title">Sebaran data</h2>
+    <div class="fig-grid fig-grid-even">
+      {{ figure("class_distribution", "Jumlah pasien diabetes dan tidak diabetes",
+                "Kelas tidak sepenuhnya seimbang: sekitar " ~ ((d.class_counts['1'] / d.rows)|pct) ~ " pasien diabetes. Itu sebabnya model memakai class_weight balanced.") }}
+      {{ figure("correlation", "Heatmap korelasi antar variabel",
+                (m.correlation[0].label) ~ " punya korelasi tertinggi dengan diabetes (" ~ (m.correlation[0].value|fixed(2)) ~ "), disusul " ~ (m.correlation[1].label) ~ " (" ~ (m.correlation[1].value|fixed(2)) ~ ") dan " ~ (m.correlation[2].label) ~ " (" ~ (m.correlation[2].value|fixed(2)) ~ ").") }}
+    </div>
+    {{ figure("feature_distributions", "Sebaran glukosa, BMI, dan usia menurut kelas",
+              "Glukosa paling jelas memisahkan kedua kelas: pasien diabetes (merah muda) bergeser ke nilai yang lebih tinggi.") }}
+
+    <h2 class="block-title">Data yang hilang</h2>
+    <p class="body-text">Di lima kolom berikut, angka 0 mustahil secara medis (misalnya tekanan darah 0), jadi diperlakukan sebagai data hilang dan diganti median dari data latih.</p>
+    <div class="table-scroll">
+      <table class="metrics">
+        <thead><tr><th scope="col">Kolom</th><th scope="col">Nilai 0</th><th scope="col">Persen</th><th scope="col">Median pengganti</th></tr></thead>
+        <tbody>
+          {% for col, n in d.zero_as_missing.items() %}
+          <tr><th scope="row">{{ labels[col] }}</th><td>{{ n }}</td><td>{{ (n / d.rows)|pct(1) }}</td><td>{{ m.medians[col]|num(1) }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="note-text">Semua fitur sudah berupa angka, sehingga tidak ada fitur kategorikal yang perlu di-encode.</p>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% from "macros.html" import verdict, trail, tree_svg, page_head %}
+{% block title %}Prediksi{% endblock %}
+
+{% block content %}
+{{ page_head("Prediksi", "indigo", "Cek risiko diabetes pasien",
+             "Isi formulir di bawah lalu tekan tombol periksa. Empat isian wajib: kehamilan, usia, glukosa, dan BMI. Kolom lain boleh dikosongkan dan akan diisi median data latih.") }}
+
+<section class="section section-flush">
+  <div class="wrap">
+    <form id="form" class="card form" method="post" action="{{ url_for('predict_page') }}" novalidate>
+      {% if errors %}
+      <div class="alert alert-error" role="alert">
+        Ada {{ errors|length }} isian yang perlu diperbaiki. Cek pesan di bawah masing-masing kolom.
+      </div>
+      {% endif %}
+
+      <div class="form-groups">
+        {% for group in groups %}
+        <fieldset class="group {{ 'group-indigo' if group == 'Riwayat' else 'group-pink' }}">
+          <legend>{{ 'Riwayat pasien' if group == 'Riwayat' else 'Hasil pemeriksaan' }}</legend>
+          <div class="fields">
+            {% for f in fields if f.group == group %}
+            <div class="field {{ 'has-error' if errors.get(f.name) }}">
+              <label for="f-{{ f.name }}">{{ f.label }}{% if not f.required %} <span class="opt">(opsional)</span>{% endif %}</label>
+              <div class="input-wrap">
+                <input id="f-{{ f.name }}" name="{{ f.name }}" type="text" inputmode="decimal" autocomplete="off"
+                       value="{{ form.get(f.name, '') }}"
+                       {% if f.required %}required{% endif %}
+                       aria-describedby="h-{{ f.name }}{% if errors.get(f.name) %} e-{{ f.name }}{% endif %}"
+                       {% if errors.get(f.name) %}aria-invalid="true"{% endif %}>
+                {% if f.unit %}<span class="unit">{{ f.unit }}</span>{% endif %}
+              </div>
+              <p class="hint" id="h-{{ f.name }}">{{ f.hint }}</p>
+              {% if errors.get(f.name) %}<p class="msg msg-error" id="e-{{ f.name }}">{{ errors[f.name] }}</p>{% endif %}
+              {% if warnings.get(f.name) and not errors.get(f.name) %}<p class="msg msg-warn">{{ warnings[f.name] }}</p>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+        </fieldset>
+        {% endfor %}
+      </div>
+
+      <div class="actions">
+        <button class="btn btn-primary" type="submit">Periksa risiko</button>
+        <button class="btn btn-outline" type="button" id="fillExample" data-example='{{ example|tojson }}'>Isi contoh</button>
+        <a class="btn btn-text" href="{{ url_for('predict_page') }}">Kosongkan</a>
+      </div>
+    </form>
+
+    <section id="hasil" class="card result"{% if result %} data-has-result="true"{% endif %} aria-live="polite">
+      <h2 class="result-title">Hasil</h2>
+      {% if result %}
+      {% set mb = m.model_b %}
+      {{ verdict(result) }}
+
+      <div class="result-grid">
+        <article class="info-card info-indigo">
+          <h3>Ringkasan alasan</h3>
+          <p>Model memprediksi <strong>{{ result.label }}</strong> setelah menjawab {{ result.steps|length }} pertanyaan ya atau tidak. Faktor yang menentukan: {{ result.factors|join(', ') }}.</p>
+          <p>Titik akhir di pohon berisi {{ result.leaf_n }} pasien latih dengan pola serupa, dan {{ result.leaf_pos }} di antaranya ({{ result.leaf_share|pct }}) menderita diabetes.</p>
+        </article>
+        <article class="info-card info-pink">
+          <h3>Arti hasil ini</h3>
+          <p>{{ result.advice.text }}</p>
+          {% if result.advice.high %}<p>Menurut acuan umum, nilai berikut berada di rentang tinggi: <strong>{{ result.advice.high|join(', ') }}</strong>.</p>{% endif %}
+        </article>
+      </div>
+
+      <h3 class="block-title">Pohon keputusan dan jalur Anda</h3>
+      {{ tree_svg(tree_view, result.path, "Pohon keputusan dengan jalur pasien ditandai warna") }}
+
+      <h3 class="block-title">Alasan langkah demi langkah</h3>
+      {{ trail(result, raw_threshold) }}
+
+      <h3 class="block-title">Nilai Anda dibanding acuan</h3>
+      <div class="table-scroll">
+        <table class="metrics">
+          <thead><tr><th scope="col">Indikator</th><th scope="col">Nilai Anda</th><th scope="col">Acuan umum</th><th scope="col">Dibanding data latih</th></tr></thead>
+          <tbody>
+            {% for row in result.inputs %}
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              {% if row.imputed %}
+              <td>Tidak diisi</td><td>-</td><td>Dipakai median ({{ row.median|num(2) }}{% if row.unit %} {{ row.unit }}{% endif %})</td>
+              {% else %}
+              <td>{{ row.value|num(2) }}{% if row.unit %} {{ row.unit }}{% endif %}</td>
+              <td>{% if row.category %}<span class="tag tag-{{ row.tone }}">{{ row.category }}</span>{% else %}-{% endif %}</td>
+              <td>{{ row.position|capitalize }} ({{ row.median|num(2) }})</td>
+              {% endif %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="note-text">Acuan umum hanya tersedia untuk glukosa (tes toleransi 2 jam), BMI, dan tekanan darah diastolik. Median adalah nilai tengah pasien pada data latih. Semua ini bukan diagnosis.</p>
+
+      <div class="result-grid">
+        <article class="info-card info-amber">
+          <h3>Seberapa andal hasil ini?</h3>
+          <p>Pada {{ m.dataset.test_size }} pasien uji, model mendeteksi {{ mb.report['Diabetes'].recall|pct }} pasien diabetes (recall). Sebaliknya, hanya sekitar {{ mb.report['Diabetes'].precision|pct }} pasien yang ditandai berisiko yang benar-benar diabetes (precision), dan {{ (mb.confusion_matrix[0][1] / (mb.confusion_matrix[0][0] + mb.confusion_matrix[0][1]))|pct }} pasien sehat ikut ditandai.</p>
+          <p>Jadi anggap hasil "berisiko" sebagai peringatan untuk periksa lebih lanjut, bukan kepastian. <a href="{{ url_for('performance_page') }}">Lihat performa lengkap</a>.</p>
+        </article>
+        <article class="info-card info-sky">
+          <h3>Catatan</h3>
+          {% if result.imputed %}<p>Tidak diisi: {{ result.imputed|join(', ') }}. Untuk kolom itu model memakai median data latih, jadi hasilnya lebih kasar.</p>{% endif %}
+          {% if warnings %}<p>Ada nilai di luar rentang data latih, jadi anggap hasil ini perkiraan kasar.</p>{% endif %}
+          <p>Alat bantu belajar, bukan diagnosis. Model dilatih dari data wanita suku Pima berusia 21 tahun ke atas. Konsultasikan hasil pemeriksaan Anda dengan tenaga kesehatan.</p>
+        </article>
+      </div>
+      {% else %}
+      <p class="body-text">Belum ada hasil. Isi formulir lalu tekan <strong>Periksa risiko</strong>, atau tekan <strong>Isi contoh</strong> untuk mencoba. Hasilnya berisi ringkasan alasan, arti hasil, pohon dengan jalur berwarna, dan perbandingan nilai Anda dengan acuan umum.</p>
+      {{ tree_svg(tree_view, [], "Pohon keputusan Model B") }}
+      {% endif %}
+    </section>
+  </div>
+</section>
+{% endblock %}

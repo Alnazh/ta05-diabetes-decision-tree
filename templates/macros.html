@@ -1,0 +1,89 @@
+{# Pasangan gambar terang dan gelap; CSS menampilkan salah satunya sesuai tema. #}
+{% macro figure(name, alt, caption=None, wide=False) %}
+<figure class="fig{{ ' fig-wide' if wide }}">
+  <div class="fig-scroll">
+    <img class="only-light" src="{{ url_for('static', filename='img/' ~ name ~ '_light.png') }}" alt="{{ alt }}">
+    <img class="only-dark" src="{{ url_for('static', filename='img/' ~ name ~ '_dark.png') }}" alt="{{ alt }}">
+  </div>
+  {% if caption %}<figcaption>{{ caption }}</figcaption>{% endif %}
+</figure>
+{% endmacro %}
+
+{# Pohon keputusan sebagai SVG. Jalur yang dipilih (path) diberi warna pada penghubung dan simpul. #}
+{% macro tree_svg(view, path, label) %}
+<div class="tree-scroll">
+  <svg class="tree-svg" viewBox="0 0 {{ view.width }} {{ view.height }}" role="img" aria-label="{{ label }}">
+    <g class="edges">
+      {% for e in view.edges if e.child not in path %}
+      <path class="edge" d="{{ e.d }}"/>
+      <text class="edge-label" x="{{ e.label_x }}" y="{{ e.label_y }}">{{ e.label }}</text>
+      {% endfor %}
+      {% for e in view.edges if e.child in path %}
+      <path class="edge on-path" d="{{ e.d }}"/>
+      <text class="edge-label on-path" x="{{ e.label_x }}" y="{{ e.label_y }}">{{ e.label }}</text>
+      {% endfor %}
+    </g>
+    <g class="nodes">
+      {% for n in view.nodes %}
+      <g class="node {{ n.tone }}{{ ' on-path' if n.id in path }}" transform="translate({{ n.x }} {{ n.y }})">
+        <rect width="{{ view.node_w }}" height="{{ view.node_h }}" rx="14"/>
+        {% for line in n.lines %}
+        <text class="{{ line.cls }}" x="{{ view.node_w / 2 }}" y="{{ line.y }}">{{ line.text }}</text>
+        {% endfor %}
+      </g>
+      {% endfor %}
+    </g>
+  </svg>
+</div>
+<ul class="tree-legend" aria-label="Keterangan warna pohon">
+  <li><span class="swatch swatch-neg"></span>Condong tidak diabetes</li>
+  <li><span class="swatch swatch-pos"></span>Condong diabetes</li>
+  <li><span class="swatch swatch-path"></span>Jalur yang dipilih</li>
+  <li>Cabang kiri: Ya, cabang kanan: Tidak</li>
+</ul>
+{% endmacro %}
+
+{# Spanduk hasil prediksi. #}
+{% macro verdict(result) %}
+<div class="verdict {{ 'verdict-pos' if result.positive else 'verdict-neg' }}">
+  <p class="verdict-title">{{ 'Berisiko diabetes' if result.positive else 'Risiko diabetes rendah' }}</p>
+  <p class="verdict-sub">Prediksi model: {{ result.label }}. Dari {{ result.leaf_n }} pasien latih di titik akhir ini, {{ result.leaf_pos }} ({{ result.leaf_share|pct }}) menderita diabetes.</p>
+</div>
+{% endmacro %}
+
+{# Langkah-langkah jawaban ya atau tidak yang dilalui pasien, dijelaskan dengan kalimat. #}
+{% macro trail(result, raw_threshold) %}
+<ol class="trail">
+  {% for s in result.steps %}
+  <li class="step">
+    <p class="q">Apakah {{ s.feature }} ≤ {{ s.threshold|num(2) }}{% if s.unit %} {{ s.unit }}{% endif %}?</p>
+    <p class="a">
+      <span class="chip {{ 'chip-yes' if s.left else 'chip-no' }}">{{ 'Ya' if s.left else 'Tidak' }}</span>
+      {{ s.sentence }}{% if s.imputed %} Kolom ini tidak diisi, jadi dipakai median data latih.{% endif %}
+    </p>
+  </li>
+  {% endfor %}
+  <li class="step step-leaf">
+    <p class="q">Titik akhir: {{ result.label }}</p>
+    <p class="a">Dari {{ result.leaf_n }} pasien latih yang sampai di titik ini, {{ result.leaf_pos }} ({{ result.leaf_share|pct }}) menderita diabetes.</p>
+    <div class="meter" data-threshold="{{ (raw_threshold * 100)|round(1) }}">
+      <progress class="meter-bar {{ 'bar-pos' if result.positive else 'bar-neg' }}" max="100"
+                value="{{ (result.leaf_share * 100)|round(1) }}"
+                aria-label="{{ result.leaf_share|pct }} pasien di titik ini menderita diabetes; ambang berisiko {{ raw_threshold|pct }}"></progress>
+      <span class="meter-tick" aria-hidden="true"></span>
+    </div>
+    <p class="meter-note">Garis menandai ambang {{ raw_threshold|pct }}. Titik akhir di atas garis dinyatakan berisiko.</p>
+  </li>
+</ol>
+{% endmacro %}
+
+{# Kepala halaman untuk halaman selain beranda. #}
+{% macro page_head(kicker, color, title, lead) %}
+<section class="page-head">
+  <div class="wrap">
+    <p class="kicker kicker-{{ color }}">{{ kicker }}</p>
+    <h1>{{ title }}</h1>
+    <p class="page-lead">{{ lead }}</p>
+  </div>
+</section>
+{% endmacro %}

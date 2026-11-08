@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% from "macros.html" import figure, page_head %}
+{% set a = m.model_a %}{% set b = m.model_b %}{% set d = m.dataset %}
+{# Tandai nilai yang lebih baik pada satu baris tabel perbandingan #}
+{% macro best(x, y) %}{{ 'is-best' if x > y else '' }}{% endmacro %}
+{% block title %}Performa{% endblock %}
+
+{% block content %}
+{{ page_head("Performa model", "amber", "Model A (tumbuh bebas) dan Model B (dipangkas)",
+             "Model A dibiarkan tumbuh sampai " ~ a.actual_depth ~ " tingkat dan " ~ a.n_leaves ~ " daun, sedangkan Model B dibatasi max_depth=" ~ b.max_depth ~ " sehingga hanya " ~ b.n_leaves ~ " daun. Model A hafal data latih (akurasi " ~ (a.train_accuracy|pct) ~ ") tetapi turun menjadi " ~ (a.test_accuracy|pct) ~ " pada data uji, selisih " ~ (((a.train_accuracy - a.test_accuracy) * 100)|round|int) ~ " poin. Selisih Model B hanya " ~ (((b.train_accuracy - b.test_accuracy) * 100)|round|int) ~ " poin.") }}
+
+<section class="section section-flush">
+  <div class="wrap">
+    <div class="table-scroll">
+      <table class="metrics">
+        <thead>
+          <tr><th scope="col">Metrik</th><th scope="col">Model A<br><span class="th-sub">max_depth=None</span></th><th scope="col">Model B<br><span class="th-sub">max_depth={{ b.max_depth }}</span></th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Kedalaman pohon</th><td>{{ a.actual_depth }}</td><td>{{ b.actual_depth }}</td></tr>
+          <tr><th scope="row">Jumlah daun</th><td>{{ a.n_leaves }}</td><td>{{ b.n_leaves }}</td></tr>
+          <tr><th scope="row">Akurasi data latih</th><td>{{ a.train_accuracy|pct(1) }}</td><td>{{ b.train_accuracy|pct(1) }}</td></tr>
+          <tr><th scope="row">Akurasi data uji</th><td class="{{ best(a.test_accuracy, b.test_accuracy) }}">{{ a.test_accuracy|pct(1) }}</td><td class="{{ best(b.test_accuracy, a.test_accuracy) }}">{{ b.test_accuracy|pct(1) }}</td></tr>
+          <tr><th scope="row">Akurasi validasi silang (5 lipatan)</th><td class="{{ best(a.cv_mean, b.cv_mean) }}">{{ a.cv_mean|pct(1) }}</td><td class="{{ best(b.cv_mean, a.cv_mean) }}">{{ b.cv_mean|pct(1) }}</td></tr>
+          <tr><th scope="row">AUC data uji</th><td class="{{ best(a.auc, b.auc) }}">{{ a.auc|fixed(2) }}</td><td class="{{ best(b.auc, a.auc) }}">{{ b.auc|fixed(2) }}</td></tr>
+          <tr><th scope="row">AUC validasi silang</th><td class="{{ best(a.cv_auc, b.cv_auc) }}">{{ a.cv_auc|fixed(2) }}</td><td class="{{ best(b.cv_auc, a.cv_auc) }}">{{ b.cv_auc|fixed(2) }}</td></tr>
+          <tr><th scope="row">Recall diabetes (data uji)</th><td class="{{ best(a.report['Diabetes'].recall, b.report['Diabetes'].recall) }}">{{ a.report['Diabetes'].recall|pct }}</td><td class="{{ best(b.report['Diabetes'].recall, a.report['Diabetes'].recall) }}">{{ b.report['Diabetes'].recall|pct }}</td></tr>
+          <tr><th scope="row">Precision diabetes (data uji)</th><td class="{{ best(a.report['Diabetes'].precision, b.report['Diabetes'].precision) }}">{{ a.report['Diabetes'].precision|pct }}</td><td class="{{ best(b.report['Diabetes'].precision, a.report['Diabetes'].precision) }}">{{ b.report['Diabetes'].precision|pct }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note-text">Warna hijau kebiruan menandai nilai yang lebih baik pada tiap baris.</p>
+
+    <p class="body-text">
+      {% if a.test_accuracy > b.test_accuracy %}
+      Akurasi uji Model A memang sedikit lebih tinggi dari Model B ({{ a.test_accuracy|pct(1) }} dibanding {{ b.test_accuracy|pct(1) }}), tetapi itu tidak menunjukkan model yang lebih baik. Model B unggul pada AUC ({{ b.auc|fixed(2) }} dibanding {{ a.auc|fixed(2) }}) dan pada recall diabetes ({{ b.report['Diabetes'].recall|pct }} dibanding {{ a.report['Diabetes'].recall|pct }}), serta lebih tinggi pada validasi silang ({{ b.cv_mean|pct(1) }} dibanding {{ a.cv_mean|pct(1) }}). Untuk skrining, melewatkan pasien diabetes lebih merugikan daripada salah menandai pasien sehat, jadi Model B dipilih untuk aplikasi ini.
+      {% else %}
+      Model B tidak lebih buruk dari Model A pada data uji, tetapi jauh lebih sederhana dan stabil, jadi Model B dipilih untuk aplikasi ini.
+      {% endif %}
+    </p>
+
+    <h2 class="block-title">Confusion matrix dan kurva ROC</h2>
+    <div class="fig-grid">
+      {{ figure("confusion_matrix", "Confusion matrix Model A dan Model B pada data uji. Model A: " ~ a.confusion_matrix[0][0] ~ " benar tidak diabetes, " ~ a.confusion_matrix[0][1] ~ " salah ditandai diabetes, " ~ a.confusion_matrix[1][0] ~ " diabetes terlewat, " ~ a.confusion_matrix[1][1] ~ " benar diabetes. Model B: " ~ b.confusion_matrix[0][0] ~ ", " ~ b.confusion_matrix[0][1] ~ ", " ~ b.confusion_matrix[1][0] ~ ", " ~ b.confusion_matrix[1][1] ~ ".",
+                "Diagonal kiri atas dan kanan bawah adalah prediksi benar. Semakin pekat warna birunya, semakin banyak pasiennya.") }}
+      {{ figure("roc", "Kurva ROC Model A dan Model B",
+                "Kurva yang lebih melengkung ke kiri atas berarti model lebih baik membedakan kedua kelas.") }}
+    </div>
+
+    <h2 class="block-title">Mana yang lebih merugikan?</h2>
+    <div class="cost-grid">
+      <article class="cost cost-amber">
+        <p class="cost-num">False Positive = {{ b.confusion_matrix[0][1] }}</p>
+        <p>Pasien yang sebenarnya tidak diabetes tetapi ditandai berisiko (Model B, data uji). Akibatnya pasien diminta periksa lebih lanjut, biayanya relatif kecil.</p>
+      </article>
+      <article class="cost cost-pink">
+        <p class="cost-num">False Negative = {{ b.confusion_matrix[1][0] }}</p>
+        <p>Pasien yang sebenarnya diabetes tetapi ditandai rendah (Model B, data uji). Penyakitnya terlewat, jadi ini lebih merugikan. Model A melewatkan {{ a.confusion_matrix[1][0] }} pasien.</p>
+      </article>
+    </div>
+
+    <h2 class="block-title">Mengapa recall jadi ukuran utama?</h2>
+    <ul class="checks">
+      <li>Tujuan skrining adalah menemukan sebanyak mungkin pasien yang berisiko.</li>
+      <li>Recall mengukur berapa banyak pasien diabetes sungguhan yang berhasil terdeteksi.</li>
+      <li>Karena itu model dilatih dengan <code>class_weight="balanced"</code>. Harganya, precision turun dan lebih banyak pasien sehat ikut ditandai.</li>
+      <li>Kelas diabetes sekitar {{ (d.class_counts['1'] / d.rows)|pct }} dari data, jadi tanpa pembobotan pohon cenderung mengabaikannya.</li>
+    </ul>
+
+    <h2 class="block-title">Memilih kedalaman pohon</h2>
+    <p class="body-text">Semakin dalam pohon, akurasi data latih terus naik menuju 100%, tetapi akurasi dan AUC validasi silang tidak ikut naik, bahkan cenderung turun. Kedalaman {{ b.max_depth }} dipilih karena AUC validasi silangnya tertinggi ({{ b.cv_auc|fixed(2) }}) dan pohonnya masih cukup kecil untuk dibaca manusia.</p>
+    {{ figure("depth_sweep", "Grafik akurasi data latih dan validasi silang terhadap kedalaman pohon") }}
+  </div>
+</section>
+{% endblock %}

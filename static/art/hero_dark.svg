@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 440" role="img" aria-labelledby="t d">
+  <title id="t">Ilustrasi pengecekan risiko diabetes</title>
+  <desc id="d">Alat cek gula darah dengan tetes darah, denyut jantung, dan pohon keputusan mini.</desc>
+  <ellipse cx="262" cy="224" rx="226" ry="190" fill="#2b2760"/>
+  <circle cx="436" cy="92" r="64" fill="#4a1e3a"/>
+  <circle cx="86" cy="356" r="52" fill="#12403f"/>
+  <circle cx="470" cy="388" r="22" fill="#4a3910"/>
+
+  <g fill="#ffc247"><rect x="40" y="86" width="5" height="22" rx="2.5"/><rect x="31.5" y="94.5" width="22" height="5" rx="2.5"/></g>
+  <g fill="#5bb0ff"><rect x="478" y="236" width="4" height="16" rx="2"/><rect x="472" y="242" width="16" height="4" rx="2"/></g>
+  <circle cx="118" cy="52" r="6" fill="#ff6b9d"/>
+  <circle cx="494" cy="170" r="5" fill="#3fd6c6"/>
+
+  <!-- tetes darah -->
+  <path d="M226 18C226 18 204 46 204 60a22 22 0 0 0 44 0C248 46 226 18 226 18Z" fill="#ff6b9d"/>
+  <ellipse cx="217" cy="56" rx="4.5" ry="8" fill="#ffffff" opacity="0.55" transform="rotate(18 217 56)"/>
+
+  <!-- strip uji -->
+  <rect x="203" y="86" width="46" height="70" rx="9" fill="#1a1736" stroke="#332f5e" stroke-width="2"/>
+  <rect x="213" y="92" width="26" height="22" rx="6" fill="#3fd6c6"/>
+
+  <!-- bayangan dan badan alat -->
+  <rect x="146" y="150" width="160" height="262" rx="32" fill="#000000" opacity="0.30"/>
+  <rect x="140" y="140" width="160" height="262" rx="32" fill="#8e80ff"/>
+  <rect x="158" y="160" width="124" height="96" rx="16" fill="#1a1736"/>
+  <text x="220" y="218" text-anchor="middle" font-family="Outfit, system-ui, sans-serif" font-size="48" font-weight="800" fill="#eeedff">148</text>
+  <text x="220" y="242" text-anchor="middle" font-family="Outfit, system-ui, sans-serif" font-size="14" font-weight="600" fill="#aaa7d2">mg/dL</text>
+  <circle cx="176" cy="288" r="7" fill="#2b2760" opacity="0.7"/>
+  <circle cx="204" cy="288" r="7" fill="#2b2760" opacity="0.7"/>
+  <circle cx="232" cy="288" r="7" fill="#2b2760" opacity="0.7"/>
+  <circle cx="220" cy="346" r="32" fill="#2b2760" opacity="0.35"/>
+  <circle cx="220" cy="346" r="24" fill="#ff6b9d"/>
+
+  <!-- kartu pohon keputusan mini -->
+  <rect x="338" y="186" width="158" height="140" rx="24" fill="#000000" opacity="0.30"/>
+  <rect x="332" y="178" width="158" height="140" rx="24" fill="#1a1736" stroke="#332f5e" stroke-width="2"/>
+  <path d="M411 206 372 244M411 206l40 38M372 244 354 282M372 244l20 38M451 244l-20 38M451 244l20 38" fill="none" stroke="#332f5e" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M411 206l40 38M451 244l20 38" fill="none" stroke="#8e80ff" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="411" cy="204" r="12" fill="#8e80ff"/>
+  <circle cx="372" cy="244" r="10" fill="#5bb0ff"/>
+  <circle cx="451" cy="244" r="10" fill="#ffc247"/>
+  <circle cx="354" cy="284" r="8.5" fill="#3fd6c6"/>
+  <circle cx="392" cy="284" r="8.5" fill="#ff6b9d"/>
+  <circle cx="431" cy="284" r="8.5" fill="#3fd6c6"/>
+  <circle cx="471" cy="284" r="8.5" fill="#ff6b9d"/>
+  <rect x="356" y="160" width="110" height="30" rx="15" fill="#3fd6c6"/>
+  <text x="411" y="180" text-anchor="middle" font-family="Outfit, system-ui, sans-serif" font-size="14" font-weight="700" fill="#0b1020">Decision Tree</text>
+
+  <!-- kartu denyut -->
+  <rect x="318" y="350" width="184" height="72" rx="20" fill="#000000" opacity="0.30"/>
+  <rect x="312" y="342" width="184" height="72" rx="20" fill="#1a1736" stroke="#332f5e" stroke-width="2"/>
+  <polyline points="328,380 356,380 368,358 384,404 399,370 409,380 480,380" fill="none" stroke="#ff6b9d" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- label indikator -->
+  <rect x="26" y="152" width="104" height="36" rx="18" fill="#4a1e3a"/>
+  <text x="78" y="176" text-anchor="middle" font-family="Outfit, system-ui, sans-serif" font-size="15" font-weight="700" fill="#ffc0d6">Glukosa</text>
+  <rect x="44" y="214" width="76" height="36" rx="18" fill="#12403f"/>
+  <text x="82" y="238" text-anchor="middle" font-family="Outfit, system-ui, sans-serif" font-size="15" font-weight="700" fill="#9cf0e6">BMI</text>
+  <rect x="22" y="276" width="84" height="36" rx="18" fill="#4a3910"/>
+  <text x="64" y="300" text-anchor="middle" font-family="Outfit, system-ui, sans-serif" font-size="15" font-weight="700" fill="#ffe0a0">Usia</text>
+</svg>

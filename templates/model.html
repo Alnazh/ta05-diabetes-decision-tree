@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "macros.html" import tree_svg, page_head %}
+{% block title %}Model{% endblock %}
+
+{% block content %}
+{{ page_head("Model", "pink", "Cara model berpikir",
+             "Ini pohon Model B, yang kedalamannya dibatasi tiga tingkat. Setiap kotak menunjukkan pertanyaan, jumlah pasien latih yang sampai di sana, dan berapa banyak yang menderita diabetes. Merah muda condong ke diabetes, hijau kebiruan condong ke tidak diabetes.") }}
+
+<section class="section section-flush">
+  <div class="wrap">
+    <div class="card tree-card">
+      {{ tree_svg(tree_view, [], "Pohon keputusan Model B dengan kedalaman maksimum 3") }}
+    </div>
+
+    <h2 class="block-title">Tiga jalur dibaca sebagai aturan jika-maka</h2>
+    <div class="rules">
+      {% for r in m.highlight_rules %}
+      <article class="rule {{ 'rule-pos' if r.prediction == 'Diabetes' else 'rule-neg' }}">
+        <p class="rule-if">Jika {{ r.conditions|join(', dan ') }},</p>
+        <p class="rule-then">maka prediksinya <strong>{{ r.prediction }}</strong>.</p>
+        <p class="rule-n">{{ r.positives }} dari {{ r.samples }} pasien latih di jalur ini menderita diabetes ({{ r.p_diabetes|pct }}).</p>
+      </article>
+      {% endfor %}
+    </div>
+    <p class="note-text">Model ini sengaja dibuat lebih peka terhadap diabetes (<code>class_weight="balanced"</code>). Karena itu sebuah jalur sudah diprediksi diabetes bila lebih dari {{ raw_threshold|pct }} pasien latih di sana menderita diabetes, bukan 50%.</p>
+
+    <h2 class="block-title">Fitur yang paling menentukan</h2>
+    <ul class="bars">
+      {% for i in m.importance if i.value > 0 %}
+      <li>
+        <span class="bar-label">{{ i.label }}</span>
+        <progress class="bar bar-{{ loop.index }}" max="100" value="{{ (i.value * 100)|round(1) }}" aria-label="{{ i.label }}"></progress>
+        <span class="bar-val">{{ i.value|pct(1) }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    <p class="note-text">Nilai ini menunjukkan seberapa besar tiap fitur menurunkan ketidakmurnian (Gini) di seluruh pohon. Fitur yang tidak muncul ({{ m.importance|selectattr('value', 'equalto', 0)|map(attribute='label')|map('lower')|join(', ') }}) tidak dipakai pohon ini sama sekali.</p>
+  </div>
+</section>
+{% endblock %}

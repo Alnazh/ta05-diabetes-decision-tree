@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>{% block title %}{{ app_name }}{% endblock %} | Prediksi Risiko Diabetes</title>
+  <meta name="description" content="{{ app_name }} memprediksi risiko diabetes dengan Decision Tree, lengkap dengan jalur keputusan yang bisa dibaca.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="{{ url_for('static', filename='theme-init.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <a class="skip" href="#konten">Lewati ke konten</a>
+
+  <header class="topbar">
+    <div class="wrap topbar-in">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path class="logo-drop" d="M16 3.5c0 0-9 9.6-9 16a9 9 0 0 0 18 0c0-6.4-9-16-9-16Z"/>
+            <path class="logo-check" d="M11.5 19.5l3.3 3.2 6-6.4"/>
+          </svg>
+        </span>
+        <span class="brand-name">{{ app_name }}</span>
+      </a>
+
+      <nav class="nav" id="siteNav" aria-label="Navigasi utama">
+        {% for endpoint, label in nav_items %}
+        <a href="{{ url_for(endpoint) }}"{% if endpoint == active %} class="is-active" aria-current="page"{% endif %}>{{ label }}</a>
+        {% endfor %}
+      </nav>
+
+      <div class="topbar-actions">
+        <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false" aria-label="Ganti ke tema gelap">
+          <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>
+          <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3 7 7M17 17l1.7 1.7M18.7 5.3 17 7M7 17l-1.7 1.7"/></svg>
+          <span class="tt-label">Tema gelap</span>
+        </button>
+        <button class="menu-toggle" id="menuToggle" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Buka menu">
+          <span class="menu-bars" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="konten">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <p><strong>{{ app_name }}</strong> memprediksi risiko diabetes dengan Decision Tree, dibuat dengan Flask dan scikit-learn.</p>
+      <p>Aplikasi ini hanya untuk pembelajaran dan tidak menggantikan pemeriksaan medis.</p>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% set b = m.model_b %}{% set d = m.dataset %}
+{% block title %}Beranda{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <h1>Cek risiko diabetes, lengkap dengan alasannya.</h1>
+      <p class="lead">Masukkan hasil pemeriksaan sederhana seperti glukosa, BMI, dan usia. Model Decision Tree memperkirakan risiko diabetes, lalu menjelaskan setiap langkah keputusannya dengan bahasa yang mudah dipahami.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="{{ url_for('predict_page') }}">Mulai prediksi</a>
+        <a class="btn btn-outline" href="{{ url_for('performance_page') }}">Lihat performa model</a>
+      </div>
+    </div>
+    <figure class="hero-art">
+      <img class="only-light" src="{{ url_for('static', filename='art/hero_light.svg') }}" alt="Ilustrasi alat cek gula darah, tetes darah, denyut jantung, dan pohon keputusan mini">
+      <img class="only-dark" src="{{ url_for('static', filename='art/hero_dark.svg') }}" alt="Ilustrasi alat cek gula darah, tetes darah, denyut jantung, dan pohon keputusan mini">
+    </figure>
+  </div>
+
+  <div class="wrap">
+    <h2 class="stats-title">Ringkasan Model B (data uji)</h2>
+    <ul class="stats">
+      <li class="stat stat-indigo"><strong>{{ b.auc|fixed(2) }}</strong><span>Nilai AUC</span></li>
+      <li class="stat stat-pink"><strong>{{ b.report['Diabetes'].recall|pct }}</strong><span>Recall (kelas diabetes)</span></li>
+      <li class="stat stat-teal"><strong>{{ b.test_accuracy|pct }}</strong><span>Akurasi</span></li>
+      <li class="stat stat-amber"><strong>{{ d.rows }}</strong><span>Data pasien</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <p class="kicker kicker-pink">Mengenal diabetes</p>
+    <h2>Apa itu diabetes dan mengapa perlu dideteksi dini?</h2>
+    <p class="section-lead">Informasi umum berikut membantu memahami apa yang dinilai aplikasi ini. Untuk keputusan medis, selalu rujuk tenaga kesehatan.</p>
+    <div class="info-grid">
+      <article class="info-card info-indigo">
+        <h3>Apa itu diabetes</h3>
+        <p>Diabetes melitus adalah kondisi ketika kadar gula (glukosa) dalam darah tinggi dalam waktu lama. Penyebabnya, tubuh kurang atau tidak menghasilkan insulin, atau tidak memakai insulin dengan baik.</p>
+      </article>
+      <article class="info-card info-pink">
+        <h3>Mengapa deteksi dini penting</h3>
+        <p>Pada tahap awal, diabetes sering tidak terasa. Gula darah yang tinggi dalam jangka panjang dapat merusak pembuluh darah, saraf, mata, dan ginjal. Skrining membantu menemukannya lebih awal.</p>
+      </article>
+      <article class="info-card info-teal">
+        <h3>Faktor risiko umum</h3>
+        <p>Kelebihan berat badan, bertambahnya usia, riwayat diabetes dalam keluarga, tekanan darah tinggi, dan riwayat diabetes saat hamil. Faktor-faktor ini tercermin pada indikator yang dipakai model.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section section-tint">
+  <div class="wrap">
+    <p class="kicker kicker-sky">Indikator</p>
+    <h2>Delapan indikator yang dinilai model</h2>
+    <p class="section-lead">Setiap indikator berasal dari pemeriksaan sederhana. Angka di tiap kartu menunjukkan seberapa besar pengaruhnya pada pohon keputusan Model B.</p>
+    <div class="indicator-grid">
+      {% for f in fields %}
+      {% set tones = ['indigo', 'pink', 'teal', 'amber', 'sky'] %}
+      <article class="indicator indicator-{{ tones[loop.index0 % 5] }}">
+        <h3>{{ f.label }}</h3>
+        <p class="indicator-unit">{{ f.unit if f.unit else 'Skor tanpa satuan' }}</p>
+        <p>{{ f.why }}</p>
+        {% set weight = importance.get(labels[f.name], 0) %}
+        <p class="indicator-weight">{% if weight > 0 %}Pengaruh pada model: <strong>{{ weight|pct }}</strong>{% else %}Tidak dipakai pohon Model B{% endif %}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section id="cara" class="section">
+  <div class="wrap">
+    <p class="kicker kicker-teal">Cara kerja</p>
+    <h2>Tiga langkah, hasil langsung</h2>
+    <p class="section-lead">Tidak perlu paham machine learning. Isi formulir, lalu model menelusuri pohon keputusannya.</p>
+    <ol class="steps-grid">
+      <li class="step-card step-indigo">
+        <span class="step-no" aria-hidden="true">1</span>
+        <h3>Isi data pasien</h3>
+        <p>Jumlah kehamilan, usia, glukosa, dan BMI wajib diisi. Kolom lain boleh dikosongkan dan akan diisi median data latih.</p>
+      </li>
+      <li class="step-card step-pink">
+        <span class="step-no" aria-hidden="true">2</span>
+        <h3>Pohon bertanya ya atau tidak</h3>
+        <p>Model membandingkan nilai Anda dengan batas yang dipelajarinya dari data, satu pertanyaan pada satu waktu, sampai tiba di keputusan.</p>
+      </li>
+      <li class="step-card step-teal">
+        <span class="step-no" aria-hidden="true">3</span>
+        <h3>Lihat hasil dan alasannya</h3>
+        <p>Muncul label prediksi, ringkasan alasan, pohon dengan jalur berwarna, dan perbandingan nilai Anda dengan acuan umum.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="section section-tint">
+  <div class="wrap">
+    <p class="kicker kicker-amber">Keandalan</p>
+    <h2>Seberapa bisa dipercaya?</h2>
+    <div class="trust-grid">
+      <div>
+        <p class="body-text">Pada {{ d.test_size }} pasien uji, Model B mendeteksi {{ b.report['Diabetes'].recall|pct }} pasien diabetes. Sebagai gantinya, {{ (b.confusion_matrix[0][1] / (b.confusion_matrix[0][0] + b.confusion_matrix[0][1]))|pct }} pasien sehat ikut ditandai berisiko. Pertukaran ini disengaja: pada skrining, melewatkan pasien diabetes lebih merugikan daripada salah menandai pasien sehat.</p>
+        <p class="body-text">Model dilatih dari data kecil dan khusus, jadi hasilnya perlu dibaca dengan hati-hati.</p>
+        <a class="btn btn-outline" href="{{ url_for('performance_page') }}">Lihat performa lengkap</a>
+      </div>
+      <ul class="limits">
+        <li><strong>Data terbatas.</strong> {{ d.rows }} pasien wanita suku Pima berusia 21 tahun ke atas.</li>
+        <li><strong>Bukan diagnosis.</strong> Hasil hanya perkiraan untuk belajar dan skrining awal.</li>
+        <li><strong>Nilai di luar rentang.</strong> Input yang jauh dari data latih membuat hasil kurang andal, dan aplikasi memberi peringatan.</li>
+        <li><strong>Data hilang.</strong> Kolom yang dikosongkan diisi median, sehingga hasilnya lebih kasar.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <p class="kicker kicker-indigo">Jelajahi</p>
+    <h2>Apa yang bisa Anda lihat di sini</h2>
+    <div class="explore-grid">
+      <a class="explore-card explore-indigo" href="{{ url_for('predict_page') }}">
+        <h3>Prediksi</h3>
+        <p>Isi data pasien dan lihat hasil lengkap dengan penjelasannya.</p>
+      </a>
+      <a class="explore-card explore-pink" href="{{ url_for('model_page') }}">
+        <h3>Model</h3>
+        <p>Pohon keputusan, aturan jika-maka, dan indikator yang paling berpengaruh.</p>
+      </a>
+      <a class="explore-card explore-amber" href="{{ url_for('performance_page') }}">
+        <h3>Performa</h3>
+        <p>Perbandingan model tumbuh bebas dan dipangkas, confusion matrix, serta kurva ROC.</p>
+      </a>
+      <a class="explore-card explore-sky" href="{{ url_for('dataset_page') }}">
+        <h3>Dataset</h3>
+        <p>Asal data, sebaran kelas, korelasi, dan cara data yang hilang ditangani.</p>
+      </a>
+    </div>
+  </div>
+</section>
+{% endblock %}
