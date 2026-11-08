@@ -1,0 +1,529 @@
+{
+  "sklearn_version": "1.7.2",
+  "features": [
+    "Pregnancies",
+    "Glucose",
+    "BloodPressure",
+    "SkinThickness",
+    "Insulin",
+    "BMI",
+    "DiabetesPedigreeFunction",
+    "Age"
+  ],
+  "labels": {
+    "Pregnancies": "Jumlah kehamilan",
+    "Glucose": "Glukosa",
+    "BloodPressure": "Tekanan darah",
+    "SkinThickness": "Tebal lipatan kulit",
+    "Insulin": "Insulin",
+    "BMI": "BMI",
+    "DiabetesPedigreeFunction": "Riwayat keluarga",
+    "Age": "Usia"
+  },
+  "dataset": {
+    "rows": 768,
+    "class_counts": {
+      "0": 500,
+      "1": 268
+    },
+    "zero_as_missing": {
+      "Glucose": 5,
+      "BloodPressure": 35,
+      "SkinThickness": 227,
+      "Insulin": 374,
+      "BMI": 11
+    },
+    "train_size": 614,
+    "test_size": 154
+  },
+  "medians": {
+    "Pregnancies": 3.0,
+    "Glucose": 117.0,
+    "BloodPressure": 72.0,
+    "SkinThickness": 29.0,
+    "Insulin": 125.0,
+    "BMI": 32.4,
+    "DiabetesPedigreeFunction": 0.3825,
+    "Age": 29.0
+  },
+  "ranges": {
+    "Pregnancies": [
+      0.0,
+      17.0
+    ],
+    "Glucose": [
+      44.0,
+      199.0
+    ],
+    "BloodPressure": [
+      24.0,
+      122.0
+    ],
+    "SkinThickness": [
+      7.0,
+      99.0
+    ],
+    "Insulin": [
+      14.0,
+      846.0
+    ],
+    "BMI": [
+      18.2,
+      67.1
+    ],
+    "DiabetesPedigreeFunction": [
+      0.078,
+      2.42
+    ],
+    "Age": [
+      21.0,
+      81.0
+    ]
+  },
+  "model_a": {
+    "max_depth": null,
+    "actual_depth": 15,
+    "n_leaves": 119,
+    "train_accuracy": 1.0,
+    "test_accuracy": 0.7143,
+    "auc": 0.6607,
+    "confusion_matrix": [
+      [
+        84,
+        16
+      ],
+      [
+        28,
+        26
+      ]
+    ],
+    "report": {
+      "Tidak diabetes": {
+        "precision": 0.75,
+        "recall": 0.84,
+        "f1-score": 0.7924528301886793,
+        "support": 100.0
+      },
+      "Diabetes": {
+        "precision": 0.6190476190476191,
+        "recall": 0.48148148148148145,
+        "f1-score": 0.5416666666666666,
+        "support": 54.0
+      },
+      "accuracy": 0.7142857142857143,
+      "macro avg": {
+        "precision": 0.6845238095238095,
+        "recall": 0.6607407407407407,
+        "f1-score": 0.667059748427673,
+        "support": 154.0
+      },
+      "weighted avg": {
+        "precision": 0.7040816326530612,
+        "recall": 0.7142857142857143,
+        "f1-score": 0.7045148247978437,
+        "support": 154.0
+      }
+    },
+    "cv_mean": 0.676,
+    "cv_std": 0.039,
+    "cv_recall": 0.5471,
+    "cv_auc": 0.646
+  },
+  "model_b": {
+    "max_depth": 3,
+    "actual_depth": 3,
+    "n_leaves": 8,
+    "train_accuracy": 0.7313,
+    "test_accuracy": 0.6753,
+    "auc": 0.7621,
+    "confusion_matrix": [
+      [
+        59,
+        41
+      ],
+      [
+        9,
+        45
+      ]
+    ],
+    "report": {
+      "Tidak diabetes": {
+        "precision": 0.8676470588235294,
+        "recall": 0.59,
+        "f1-score": 0.7023809523809523,
+        "support": 100.0
+      },
+      "Diabetes": {
+        "precision": 0.5232558139534884,
+        "recall": 0.8333333333333334,
+        "f1-score": 0.6428571428571429,
+        "support": 54.0
+      },
+      "accuracy": 0.6753246753246753,
+      "macro avg": {
+        "precision": 0.6954514363885089,
+        "recall": 0.7116666666666667,
+        "f1-score": 0.6726190476190477,
+        "support": 154.0
+      },
+      "weighted avg": {
+        "precision": 0.746886492440528,
+        "recall": 0.6753246753246753,
+        "f1-score": 0.6815089672232528,
+        "support": 154.0
+      }
+    },
+    "cv_mean": 0.697,
+    "cv_std": 0.0478,
+    "cv_recall": 0.8369,
+    "cv_auc": 0.7956
+  },
+  "depth_sweep": [
+    {
+      "depth": 1,
+      "train": 0.7443,
+      "test": 0.7013,
+      "cv": 0.7361,
+      "cv_recall": 0.6217,
+      "cv_auc": 0.7096
+    },
+    {
+      "depth": 2,
+      "train": 0.7443,
+      "test": 0.7013,
+      "cv": 0.7361,
+      "cv_recall": 0.6217,
+      "cv_auc": 0.7674
+    },
+    {
+      "depth": 3,
+      "train": 0.7313,
+      "test": 0.6753,
+      "cv": 0.697,
+      "cv_recall": 0.8369,
+      "cv_auc": 0.7956
+    },
+    {
+      "depth": 4,
+      "train": 0.772,
+      "test": 0.7078,
+      "cv": 0.7068,
+      "cv_recall": 0.7481,
+      "cv_auc": 0.7861
+    },
+    {
+      "depth": 5,
+      "train": 0.8388,
+      "test": 0.7273,
+      "cv": 0.715,
+      "cv_recall": 0.7897,
+      "cv_auc": 0.7683
+    },
+    {
+      "depth": 6,
+      "train": 0.8518,
+      "test": 0.7013,
+      "cv": 0.7019,
+      "cv_recall": 0.7524,
+      "cv_auc": 0.7548
+    },
+    {
+      "depth": 8,
+      "train": 0.9088,
+      "test": 0.6818,
+      "cv": 0.6825,
+      "cv_recall": 0.7107,
+      "cv_auc": 0.7009
+    },
+    {
+      "depth": 10,
+      "train": 0.9625,
+      "test": 0.7078,
+      "cv": 0.6825,
+      "cv_recall": 0.6408,
+      "cv_auc": 0.6827
+    },
+    {
+      "depth": null,
+      "train": 1.0,
+      "test": 0.7143,
+      "cv": 0.676,
+      "cv_recall": 0.5471,
+      "cv_auc": 0.646
+    }
+  ],
+  "correlation": [
+    {
+      "label": "Glukosa",
+      "value": 0.495
+    },
+    {
+      "label": "BMI",
+      "value": 0.314
+    },
+    {
+      "label": "Insulin",
+      "value": 0.303
+    },
+    {
+      "label": "Tebal lipatan kulit",
+      "value": 0.259
+    },
+    {
+      "label": "Usia",
+      "value": 0.238
+    },
+    {
+      "label": "Jumlah kehamilan",
+      "value": 0.222
+    },
+    {
+      "label": "Riwayat keluarga",
+      "value": 0.174
+    },
+    {
+      "label": "Tekanan darah",
+      "value": 0.171
+    }
+  ],
+  "importance": [
+    {
+      "feature": "Glucose",
+      "label": "Glukosa",
+      "value": 0.6134
+    },
+    {
+      "feature": "BMI",
+      "label": "BMI",
+      "value": 0.2205
+    },
+    {
+      "feature": "Age",
+      "label": "Usia",
+      "value": 0.145
+    },
+    {
+      "feature": "Insulin",
+      "label": "Insulin",
+      "value": 0.0211
+    },
+    {
+      "feature": "Pregnancies",
+      "label": "Jumlah kehamilan",
+      "value": 0.0
+    },
+    {
+      "feature": "BloodPressure",
+      "label": "Tekanan darah",
+      "value": 0.0
+    },
+    {
+      "feature": "SkinThickness",
+      "label": "Tebal lipatan kulit",
+      "value": 0.0
+    },
+    {
+      "feature": "DiabetesPedigreeFunction",
+      "label": "Riwayat keluarga",
+      "value": 0.0
+    }
+  ],
+  "node_stats": [
+    {
+      "n": 614,
+      "pos": 214
+    },
+    {
+      "n": 389,
+      "pos": 73
+    },
+    {
+      "n": 199,
+      "pos": 15
+    },
+    {
+      "n": 108,
+      "pos": 2
+    },
+    {
+      "n": 91,
+      "pos": 13
+    },
+    {
+      "n": 190,
+      "pos": 58
+    },
+    {
+      "n": 39,
+      "pos": 0
+    },
+    {
+      "n": 151,
+      "pos": 58
+    },
+    {
+      "n": 225,
+      "pos": 141
+    },
+    {
+      "n": 126,
+      "pos": 58
+    },
+    {
+      "n": 43,
+      "pos": 9
+    },
+    {
+      "n": 83,
+      "pos": 49
+    },
+    {
+      "n": 99,
+      "pos": 83
+    },
+    {
+      "n": 2,
+      "pos": 0
+    },
+    {
+      "n": 97,
+      "pos": 83
+    }
+  ],
+  "rules": [
+    {
+      "node": 3,
+      "conditions": [
+        "Glukosa ≤ 127,5",
+        "Usia ≤ 27,5",
+        "BMI ≤ 31,3"
+      ],
+      "prediction": "Tidak diabetes",
+      "samples": 108,
+      "positives": 2,
+      "p_diabetes": 0.019
+    },
+    {
+      "node": 4,
+      "conditions": [
+        "Glukosa ≤ 127,5",
+        "Usia ≤ 27,5",
+        "BMI > 31,3"
+      ],
+      "prediction": "Tidak diabetes",
+      "samples": 91,
+      "positives": 13,
+      "p_diabetes": 0.143
+    },
+    {
+      "node": 6,
+      "conditions": [
+        "Glukosa ≤ 127,5",
+        "Usia > 27,5",
+        "BMI ≤ 26,8"
+      ],
+      "prediction": "Tidak diabetes",
+      "samples": 39,
+      "positives": 0,
+      "p_diabetes": 0.0
+    },
+    {
+      "node": 7,
+      "conditions": [
+        "Glukosa ≤ 127,5",
+        "Usia > 27,5",
+        "BMI > 26,8"
+      ],
+      "prediction": "Diabetes",
+      "samples": 151,
+      "positives": 58,
+      "p_diabetes": 0.384
+    },
+    {
+      "node": 10,
+      "conditions": [
+        "Glukosa > 127,5",
+        "Glukosa ≤ 154,5",
+        "BMI ≤ 29,95"
+      ],
+      "prediction": "Tidak diabetes",
+      "samples": 43,
+      "positives": 9,
+      "p_diabetes": 0.209
+    },
+    {
+      "node": 11,
+      "conditions": [
+        "Glukosa > 127,5",
+        "Glukosa ≤ 154,5",
+        "BMI > 29,95"
+      ],
+      "prediction": "Diabetes",
+      "samples": 83,
+      "positives": 49,
+      "p_diabetes": 0.59
+    },
+    {
+      "node": 13,
+      "conditions": [
+        "Glukosa > 127,5",
+        "Glukosa > 154,5",
+        "Insulin ≤ 80"
+      ],
+      "prediction": "Tidak diabetes",
+      "samples": 2,
+      "positives": 0,
+      "p_diabetes": 0.0
+    },
+    {
+      "node": 14,
+      "conditions": [
+        "Glukosa > 127,5",
+        "Glukosa > 154,5",
+        "Insulin > 80"
+      ],
+      "prediction": "Diabetes",
+      "samples": 97,
+      "positives": 83,
+      "p_diabetes": 0.856
+    }
+  ],
+  "highlight_rules": [
+    {
+      "node": 3,
+      "conditions": [
+        "Glukosa ≤ 127,5",
+        "Usia ≤ 27,5",
+        "BMI ≤ 31,3"
+      ],
+      "prediction": "Tidak diabetes",
+      "samples": 108,
+      "positives": 2,
+      "p_diabetes": 0.019
+    },
+    {
+      "node": 7,
+      "conditions": [
+        "Glukosa ≤ 127,5",
+        "Usia > 27,5",
+        "BMI > 26,8"
+      ],
+      "prediction": "Diabetes",
+      "samples": 151,
+      "positives": 58,
+      "p_diabetes": 0.384
+    },
+    {
+      "node": 14,
+      "conditions": [
+        "Glukosa > 127,5",
+        "Glukosa > 154,5",
+        "Insulin > 80"
+      ],
+      "prediction": "Diabetes",
+      "samples": 97,
+      "positives": 83,
+      "p_diabetes": 0.856
+    }
+  ]
+}
