@@ -189,7 +189,7 @@ Buka `analisis_diabetes_decision_tree.ipynb` dengan Jupyter dari folder proyek, 
 
 ## Tampilan Aplikasi
 
-### Beranda (terang dan gelap)
+### Beranda
 ![Beranda](docs/screenshots/beranda.png)
 
 ### Hasil prediksi dan penjelasannya
